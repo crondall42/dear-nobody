@@ -125,6 +125,9 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 .loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: #444; font-size: 14px; gap: 10px; }
 .spinner { width: 20px; height: 20px; border: 2px solid #333; border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.ptr-indicator { display: flex; align-items: center; justify-content: center; gap: 8px; overflow: hidden; transition: height 0.15s ease, opacity 0.15s ease; color: #666; font-size: 13px; }
+.ptr-arrow { font-size: 18px; transition: transform 0.2s ease; display: inline-block; }
 @keyframes slideUp { from { transform: translateY(100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
 .install-prompt { position: fixed; bottom: 0; left: 0; right: 0; z-index: 500; background: #16161f; border-top: 1px solid #1e1e2e; border-radius: 20px 20px 0 0; padding: 24px; animation: slideUp 0.35s cubic-bezier(0.34,1.26,0.64,1); }
 .install-btn { width: 100%; background: #a78bfa; border: none; color: #0f0f13; padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
@@ -675,8 +678,12 @@ function App() {
   const [popularTab,setPopularTab]=useState('24h');
   const [sortBy,setSortBy]=useState('latest');
   const [installPromptOpen,setInstallPromptOpen]=useState(false);
+  const [pullY,setPullY]=useState(0);
+  const [pullRefreshing,setPullRefreshing]=useState(false);
   const toastTimer=useRef(null);
   const deferredPromptRef=useRef(null);
+  const touchStartY=useRef(0);
+  const PTR_THRESHOLD=70;
 
   const showToast=useCallback(msg=>{
     setToast({msg,visible:true});
@@ -691,6 +698,31 @@ function App() {
   },[]);
 
   useEffect(()=>{ loadData(); },[]);
+
+  useEffect(()=>{
+    const onTouchStart=e=>{ touchStartY.current=e.touches[0].clientY; };
+    const onTouchMove=e=>{
+      if(window.scrollY>0||pullRefreshing) return;
+      const dy=e.touches[0].clientY-touchStartY.current;
+      if(dy>0) setPullY(Math.min(dy*0.45,PTR_THRESHOLD));
+    };
+    const onTouchEnd=async()=>{
+      if(pullY>=PTR_THRESHOLD){
+        setPullRefreshing(true); setPullY(PTR_THRESHOLD);
+        await loadData();
+        setPullRefreshing(false);
+      }
+      setPullY(0);
+    };
+    document.addEventListener('touchstart',onTouchStart,{passive:true});
+    document.addEventListener('touchmove',onTouchMove,{passive:true});
+    document.addEventListener('touchend',onTouchEnd);
+    return()=>{
+      document.removeEventListener('touchstart',onTouchStart);
+      document.removeEventListener('touchmove',onTouchMove);
+      document.removeEventListener('touchend',onTouchEnd);
+    };
+  },[pullY,pullRefreshing,loadData]);
 
   useEffect(()=>{
     const handler=e=>{ e.preventDefault(); deferredPromptRef.current=e; };
@@ -854,6 +886,12 @@ function App() {
         <button className="nav-write" onClick={()=>setPage('write')}>✏️ 쓰기</button>
       </nav>
       <div className="main">
+        <div className="ptr-indicator" style={{height:pullY>0||pullRefreshing?Math.max(pullY,pullRefreshing?PTR_THRESHOLD:0):0,opacity:pullY>10||pullRefreshing?1:0}}>
+          {pullRefreshing
+            ?<><div className="spinner"/><span>새로고침 중...</span></>
+            :<><span className="ptr-arrow" style={{transform:pullY>=PTR_THRESHOLD?'rotate(180deg)':'rotate(0deg)'}}>↓</span><span>{pullY>=PTR_THRESHOLD?'놓으면 새로고침':'당겨서 새로고침'}</span></>
+          }
+        </div>
         {page==='feed'&&<>
           <div className="feed-header"><div className="feed-title">모두의 일기 🌙</div><div className="feed-sub">익명의 누군가가 오늘의 감정을 기록했어요</div></div>
           <div className="tab-bar">
