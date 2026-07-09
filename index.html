@@ -226,6 +226,20 @@ function fmtFull(ts) {
 }
 function totalR(r) { return Object.values(r||{}).reduce((a,b)=>a+b,0); }
 function isMyPost(post) { return post.session_id === SESSION_ID; }
+const APP_URL='https://dear-nobody.vercel.app/';
+async function sharePost(text,showToastFn) {
+  const excerpt=text.length>80?text.slice(0,80)+'…':text;
+  const shareData={title:'Dear Nobody',text:excerpt+'\n\n익명 감정 일기 — Dear Nobody',url:APP_URL};
+  try {
+    if(navigator.share&&navigator.canShare&&navigator.canShare(shareData)){
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(APP_URL);
+      showToastFn('🔗 링크가 복사됐어요');
+    }
+  } catch(e){ if(e.name!=='AbortError') showToastFn('🔗 링크가 복사됐어요'); }
+}
+
 async function translateText(text) {
   const isKorean=/[가-힣]/.test(text);
   const langpair=isKorean?'ko|en':'en|ko';
@@ -448,7 +462,7 @@ function TranslateBox({text,onClose}) {
   );
 }
 
-function DiaryCard({post,rank,onClick,onReact,onReport,onEdit,onDelete,onHistory}) {
+function DiaryCard({post,rank,onClick,onReact,onReport,onEdit,onDelete,onHistory,onShare}) {
   const name=anonName(post.id),color=anonColor(post.id);
   const mine=isMyPost(post);
   const canAct=!!post.post_password||mine;
@@ -492,6 +506,7 @@ function DiaryCard({post,rank,onClick,onReact,onReport,onEdit,onDelete,onHistory
       <div className="card-actions" onClick={e=>e.stopPropagation()}>
         <button className="action-btn" onClick={onClick}>💬 {post.comments.length}개 댓글</button>
         <button className="action-btn" onClick={()=>setShowTranslate(v=>!v)}>🌐 {showTranslate?'원문':'Translate'}</button>
+        <button className="action-btn" onClick={onShare}>🔗 공유</button>
         {canAct?(
           <>
             <button className="action-btn mine" onClick={()=>onEdit(post)}>✏️ 수정</button>
@@ -505,7 +520,7 @@ function DiaryCard({post,rank,onClick,onReact,onReport,onEdit,onDelete,onHistory
   );
 }
 
-function DetailModal({post,onClose,onReact,onReport,onEdit,onDelete,onAddComment,onHistory}) {
+function DetailModal({post,onClose,onReact,onReport,onEdit,onDelete,onAddComment,onHistory,onShare}) {
   const [comment,setComment]=useState('');
   const [musicOpen,setMusicOpen]=useState(false);
   const [showTranslate,setShowTranslate]=useState(false);
@@ -548,6 +563,7 @@ function DetailModal({post,onClose,onReact,onReport,onEdit,onDelete,onAddComment
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
           <button className="action-btn" onClick={()=>setMusicOpen(true)}>🎵 음악 추천받기</button>
           <button className="action-btn" onClick={()=>setShowTranslate(v=>!v)}>🌐 {showTranslate?'원문':'Translate'}</button>
+          <button className="action-btn" onClick={onShare}>🔗 공유</button>
           {canAct?(
             <>
               <button className="action-btn mine" onClick={()=>{onClose();onEdit(post);}}>✏️ 수정</button>
@@ -824,6 +840,7 @@ function App() {
     onEdit:handleEditClick,
     onDelete:handleDeleteClick,
     onHistory:id=>setHistoryTarget(id),
+    onShare:()=>sharePost(post.text,showToast),
   });
 
   return (
@@ -859,7 +876,7 @@ function App() {
         </>}
         {page==='write'&&<WritePage onSubmit={handleSubmit} loading={submitting}/>}
       </div>
-      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onReport={id=>setReportTarget(id)} onEdit={handleEditClick} onDelete={handleDeleteClick} onAddComment={handleAddComment} onHistory={id=>setHistoryTarget(id)}/>}
+      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onReport={id=>setReportTarget(id)} onEdit={handleEditClick} onDelete={handleDeleteClick} onAddComment={handleAddComment} onHistory={id=>setHistoryTarget(id)} onShare={()=>sharePost(detail.text,showToast)}/>}
       {reportTarget&&<ReportModal onClose={()=>setReportTarget(null)} onSubmit={reason=>handleReport(reportTarget,reason)}/>}
       {editTarget&&<EditModal post={editTarget} onClose={()=>setEditTarget(null)} onSave={handleEdit}/>}
       {historyTarget&&<HistoryModal postId={historyTarget} onClose={()=>setHistoryTarget(null)}/>}
