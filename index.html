@@ -31,23 +31,29 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 .feed-header { margin: 24px 0 20px; }
 .feed-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
 .feed-sub { font-size: 13px; color: #666; }
-.card { background: #16161f; border: 1px solid #1e1e2e; border-radius: 16px; padding: 20px; margin-bottom: 14px; transition: border-color 0.2s; cursor: pointer; position: relative; user-select: none; }
+.card { background: #16161f; border: 1px solid #1e1e2e; border-radius: 16px; padding: 20px; margin-bottom: 14px; transition: border-color 0.2s; position: relative; }
 .card:hover { border-color: #333350; }
 .card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .card-anon { display: flex; align-items: center; gap: 8px; }
 .card-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
 .card-name { font-size: 13px; color: #aaa; }
-.card-time { font-size: 12px; color: #555; }
+.card-time { font-size: 12px; color: #555; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.edited-badge { font-size: 11px; color: #7c6faf; background: rgba(124,111,175,0.12); padding: 1px 7px; border-radius: 8px; cursor: pointer; }
+.edited-badge:hover { color: #a78bfa; }
 .card-emotion { font-size: 11px; background: #1e1e2e; color: #888; padding: 3px 10px; border-radius: 20px; }
-.card-text { font-size: 15px; line-height: 1.7; color: #d0d0e0; margin-bottom: 16px; word-break: keep-all; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* 줄바꿈 지원 카드 텍스트 */
+.card-text { font-size: 15px; line-height: 1.7; color: #d0d0e0; margin-bottom: 16px; white-space: pre-wrap; word-break: keep-all; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; cursor: pointer; }
 .card-reactions { display: flex; gap: 6px; flex-wrap: wrap; }
 .reaction-btn { display: flex; align-items: center; gap: 5px; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #888; cursor: pointer; transition: all 0.15s; font-family: inherit; }
 .reaction-btn:hover { border-color: #a78bfa; color: #a78bfa; background: rgba(167,139,250,0.07); }
 .reaction-btn.active { border-color: #a78bfa; color: #a78bfa; background: rgba(167,139,250,0.12); }
-.card-actions { display: flex; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #1e1e2e; align-items: center; }
-.action-btn { background: none; border: none; color: #555; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 8px; transition: all 0.15s; font-family: inherit; }
+.card-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #1e1e2e; align-items: center; flex-wrap: wrap; }
+.action-btn { background: none; border: none; color: #555; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; transition: all 0.15s; font-family: inherit; }
 .action-btn:hover { color: #a78bfa; background: rgba(167,139,250,0.07); }
 .action-btn.danger:hover { color: #f87171; background: rgba(248,113,113,0.07); }
+.action-btn.mine { color: #7c6faf; }
+.action-btn.mine:hover { color: #a78bfa; }
+.action-btn.mine-del:hover { color: #f87171; background: rgba(248,113,113,0.07); }
 .donate-btn { margin-left: auto; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; border-radius: 20px; font-size: 12px; padding: 5px 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; font-weight: 600; }
 .donate-btn:hover { background: rgba(251,191,36,0.2); }
 .rank-badge { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
@@ -61,7 +67,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 .write-emotion-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
 .emotion-chip { background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 6px 14px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; font-family: inherit; }
 .emotion-chip.selected { background: rgba(167,139,250,0.15); border-color: #a78bfa; color: #a78bfa; font-weight: 600; }
-.write-textarea { width: 100%; background: #16161f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 16px; color: #e8e8f0; font-size: 15px; line-height: 1.7; resize: none; min-height: 200px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+.write-textarea { width: 100%; background: #16161f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 16px; color: #e8e8f0; font-size: 15px; line-height: 1.7; resize: none; min-height: 200px; font-family: inherit; outline: none; transition: border-color 0.2s; white-space: pre-wrap; }
 .write-textarea:focus { border-color: #333350; }
 .write-textarea::placeholder { color: #444; }
 .write-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
@@ -74,13 +80,14 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
 .modal { background: #16161f; border: 1px solid #1e1e2e; border-radius: 20px; width: 100%; max-width: 640px; margin: auto; padding: 24px; position: relative; }
 .modal-close { position: absolute; top: 16px; right: 16px; background: #1e1e2e; border: none; color: #888; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+/* 줄바꿈 지원 모달 텍스트 */
 .modal-text { font-size: 16px; line-height: 1.8; color: #d0d0e0; margin-bottom: 20px; word-break: keep-all; white-space: pre-wrap; }
 .comments-section { border-top: 1px solid #1e1e2e; padding-top: 20px; margin-top: 20px; }
 .comments-title { font-size: 14px; font-weight: 600; color: #888; margin-bottom: 14px; }
 .comment-item { display: flex; gap: 10px; margin-bottom: 14px; }
 .comment-body { flex: 1; }
 .comment-name { font-size: 12px; color: #666; margin-bottom: 3px; }
-.comment-text { font-size: 14px; color: #c0c0d0; line-height: 1.6; }
+.comment-text { font-size: 14px; color: #c0c0d0; line-height: 1.6; white-space: pre-wrap; }
 .comment-input-row { display: flex; gap: 8px; margin-top: 16px; }
 .comment-input { flex: 1; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 8px 16px; color: #e8e8f0; font-size: 14px; font-family: inherit; outline: none; }
 .comment-input:focus { border-color: #a78bfa; }
@@ -93,8 +100,8 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 .music-close { background: #1e1e2e; border: none; color: #888; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; }
 .music-sub { font-size: 12px; color: #666; margin-bottom: 16px; }
 .music-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
-.music-item { display: flex; align-items: center; gap: 12px; background: #1e1e2e; border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: background 0.15s; }
-.music-item:hover, .music-item.playing { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); }
+.music-item { display: flex; align-items: center; gap: 12px; background: #1e1e2e; border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: background 0.15s; border: 1px solid transparent; }
+.music-item:hover, .music-item.playing { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.3); }
 .music-thumb { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; background: #252535; }
 .music-info { flex: 1; }
 .music-song { font-size: 14px; font-weight: 500; }
@@ -102,7 +109,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #252535; border: 1px solid #333350; color: #e8e8f0; font-size: 13px; padding: 10px 20px; border-radius: 20px; z-index: 9999; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .overlay-modal { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); padding: 20px; }
-.overlay-box { background: #16161f; border: 1px solid #1e1e2e; border-radius: 20px; padding: 28px; width: 100%; max-width: 380px; text-align: center; }
+.overlay-box { background: #16161f; border: 1px solid #1e1e2e; border-radius: 20px; padding: 28px; width: 100%; max-width: 420px; text-align: center; }
 .amount-btn { background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; font-family: inherit; margin: 4px; }
 .amount-btn.selected { background: rgba(251,191,36,0.12); border-color: #fbbf24; color: #fbbf24; }
 .donate-confirm { width: 100%; background: #fbbf24; border: none; color: #0f0f13; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 12px; }
@@ -125,9 +132,16 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 .inquiry-textarea { width: 100%; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 10px; padding: 11px 14px; color: #e8e8f0; font-size: 14px; font-family: inherit; outline: none; resize: none; min-height: 120px; margin-bottom: 10px; }
 .inquiry-textarea:focus { border-color: #a78bfa; }
 .inquiry-textarea::placeholder { color: #444; }
-.footer-bar { max-width: 680px; margin: 0 auto; padding: 0 16px 32px; }
+.footer-bar { max-width: 680px; margin: 0 auto; padding: 0 16px 32px; text-align: center; }
 .inquiry-trigger { background: none; border: 1px solid #1e1e2e; border-radius: 20px; color: #555; font-size: 12px; padding: 6px 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
 .inquiry-trigger:hover { border-color: #a78bfa; color: #a78bfa; }
+/* Edit modal */
+.edit-textarea { width: 100%; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 12px; padding: 14px; color: #e8e8f0; font-size: 15px; line-height: 1.7; resize: none; min-height: 180px; font-family: inherit; outline: none; white-space: pre-wrap; }
+.edit-textarea:focus { border-color: #a78bfa; }
+/* History */
+.history-item { border: 1px solid #1e1e2e; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.history-meta { font-size: 11px; color: #555; margin-bottom: 6px; }
+.history-text { font-size: 13px; color: #888; white-space: pre-wrap; line-height: 1.6; word-break: keep-all; }
 </style>
 </head>
 <body>
@@ -141,7 +155,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 const { useState, useEffect, useRef, useCallback } = React;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 방문자 기록
 const SESSION_ID = (() => {
   let id = localStorage.getItem('dn_session');
   if (!id) { id = crypto.randomUUID(); localStorage.setItem('dn_session', id); }
@@ -188,7 +201,12 @@ function timeAgo(ts) {
   if(d<86400000) return Math.floor(d/3600000)+'시간 전';
   return Math.floor(d/86400000)+'일 전';
 }
+function fmtFull(ts) {
+  const d=new Date(ts);
+  return d.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'})+' '+d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+}
 function totalR(r) { return Object.values(r||{}).reduce((a,b)=>a+b,0); }
+function isMyPost(post) { return post.session_id === SESSION_ID; }
 
 async function fetchPosts() {
   const {data:posts}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(50);
@@ -266,6 +284,49 @@ function ReportModal({onClose,onSubmit}) {
   );
 }
 
+function EditModal({post,onClose,onSave}) {
+  const [text,setText]=useState(post.text);
+  const [saving,setSaving]=useState(false);
+  return (
+    <div className="overlay-modal"><div className="overlay-box" style={{textAlign:'left',maxWidth:560}}>
+      <div style={{fontSize:16,fontWeight:700,marginBottom:4}}>✏️ 일기 수정</div>
+      <div style={{fontSize:13,color:'#666',marginBottom:14}}>수정 전 내용은 히스토리에 저장돼요</div>
+      <textarea className="edit-textarea" value={text} onChange={e=>setText(e.target.value)} maxLength={1000}/>
+      <div style={{fontSize:12,color:'#555',marginBottom:12,textAlign:'right'}}>{text.length} / 1000</div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="cancel-btn" style={{width:'auto',marginTop:0}} onClick={onClose}>취소</button>
+        <button className="submit-btn" disabled={!text.trim()||text===post.text||saving} onClick={async()=>{setSaving(true);await onSave(post.id,post.text,text.trim());setSaving(false);}}>
+          {saving?'저장 중...':'저장하기'}
+        </button>
+      </div>
+    </div></div>
+  );
+}
+
+function HistoryModal({postId,onClose}) {
+  const [edits,setEdits]=useState(null);
+  useEffect(()=>{
+    sb.from('post_edits').select('*').eq('post_id',postId).order('edited_at',{ascending:false}).then(({data})=>setEdits(data||[]));
+  },[postId]);
+  return (
+    <div className="overlay-modal" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="overlay-box" style={{textAlign:'left',maxWidth:560,maxHeight:'80vh',overflowY:'auto'}}>
+        <button className="modal-close" style={{position:'static',marginBottom:16,float:'right'}} onClick={onClose}>✕</button>
+        <div style={{fontSize:16,fontWeight:700,marginBottom:4}}>📋 수정 히스토리</div>
+        <div style={{fontSize:13,color:'#666',marginBottom:18}}>수정 전 내용 기록</div>
+        {edits===null&&<div style={{color:'#555',fontSize:13}}>불러오는 중...</div>}
+        {edits&&edits.length===0&&<div style={{color:'#555',fontSize:13}}>수정 기록이 없습니다.</div>}
+        {edits&&edits.map((e,i)=>(
+          <div key={e.id} className="history-item">
+            <div className="history-meta">#{edits.length-i} · {fmtFull(e.edited_at)} 이전 내용</div>
+            <div className="history-text">{e.old_text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function InquiryModal({onClose}) {
   const [subject,setSubject]=useState('');
   const [content,setContent]=useState('');
@@ -283,7 +344,6 @@ function InquiryModal({onClose}) {
       <div className="modal" style={{textAlign:'center',maxWidth:380}}>
         <div style={{fontSize:40,marginBottom:12}}>✅</div>
         <div style={{fontSize:17,fontWeight:700,marginBottom:8}}>문의가 접수됐어요</div>
-        <div style={{fontSize:13,color:'#666',lineHeight:1.6,marginBottom:20}}>소중한 의견 감사해요. 검토 후 반영 여부를 알려드릴게요.</div>
         <button className="submit-btn" onClick={onClose}>닫기</button>
       </div>
     </div>
@@ -294,7 +354,7 @@ function InquiryModal({onClose}) {
         <button className="modal-close" onClick={onClose}>✕</button>
         <div style={{fontSize:17,fontWeight:700,marginBottom:4}}>💡 기능 추가 문의</div>
         <div style={{fontSize:13,color:'#666',marginBottom:20}}>원하는 기능이나 개선사항을 알려주세요</div>
-        <input className="inquiry-input" placeholder="제목 (예: 다크모드 추가 요청)" value={subject} onChange={e=>setSubject(e.target.value)}/>
+        <input className="inquiry-input" placeholder="제목" value={subject} onChange={e=>setSubject(e.target.value)}/>
         <textarea className="inquiry-textarea" placeholder="자세한 내용을 적어주세요..." value={content} onChange={e=>setContent(e.target.value)}/>
         <input className="inquiry-input" placeholder="연락처 또는 이메일 (선택사항)" value={contact} onChange={e=>setContact(e.target.value)}/>
         <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
@@ -306,40 +366,55 @@ function InquiryModal({onClose}) {
   );
 }
 
-function DiaryCard({post,rank,onClick,onReact,onDonate,onReport}) {
+function DiaryCard({post,rank,onClick,onReact,onDonate,onReport,onEdit,onDelete,onHistory}) {
   const name=anonName(post.id),color=anonColor(post.id);
+  const mine=isMyPost(post);
   return (
-    <div className="card" onClick={onClick}>
+    <div className="card">
       {rank&&<div className={`rank-badge rank-${rank<=3?rank:'n'}`}>{rank}</div>}
       <div className="card-meta">
         <div className="card-anon">
           <div className="card-avatar" style={{background:color+'22',color}}>{name[0]}</div>
-          <div><div className="card-name">{name}</div><div className="card-time">{timeAgo(post.created_at)}</div></div>
+          <div>
+            <div className="card-name">{name}{mine&&<span style={{fontSize:10,color:'#7c6faf',marginLeft:6}}>내 글</span>}</div>
+            <div className="card-time">
+              <span>{timeAgo(post.created_at)}</span>
+              {post.updated_at&&<span className="edited-badge" onClick={e=>{e.stopPropagation();onHistory(post.id);}}>수정됨 {timeAgo(post.updated_at)}</span>}
+            </div>
+          </div>
         </div>
         <div className="card-emotion">{EMOTION_ICONS[post.emotion]} {post.emotion}</div>
       </div>
-      <div className="card-text">{post.text}</div>
+      <div className="card-text" onClick={onClick}>{post.text}</div>
       <div className="card-reactions" onClick={e=>e.stopPropagation()}>
         {REACTIONS.map(r=>(
           <button key={r.key} className={`reaction-btn ${post.myReaction===r.key?'active':''}`}
-            onClick={e=>{e.stopPropagation();onReact(post.id,r.key,post.myReaction);}}>
+            onClick={()=>onReact(post.id,r.key,post.myReaction)}>
             {r.emoji} <span>{post.reactions[r.key]}</span>
           </button>
         ))}
       </div>
       <div className="card-actions" onClick={e=>e.stopPropagation()}>
-        <button className="action-btn" onClick={e=>{e.stopPropagation();onClick();}}>💬 {post.comments.length}개 댓글</button>
-        <button className="action-btn danger" onClick={e=>{e.stopPropagation();onReport(post.id);}}>🚩 신고</button>
-        <button className="donate-btn" onClick={e=>{e.stopPropagation();onDonate();}}>☕ 응원 보내기</button>
+        <button className="action-btn" onClick={onClick}>💬 {post.comments.length}개 댓글</button>
+        {mine?(
+          <>
+            <button className="action-btn mine" onClick={()=>onEdit(post)}>✏️ 수정</button>
+            <button className="action-btn mine mine-del" onClick={()=>onDelete(post.id)}>🗑️ 삭제</button>
+          </>
+        ):(
+          <button className="action-btn danger" onClick={()=>onReport(post.id)}>🚩 신고</button>
+        )}
+        <button className="donate-btn" onClick={onDonate}>☕ 응원 보내기</button>
       </div>
     </div>
   );
 }
 
-function DetailModal({post,onClose,onReact,onDonate,onReport,onAddComment}) {
+function DetailModal({post,onClose,onReact,onDonate,onReport,onEdit,onDelete,onAddComment,onHistory}) {
   const [comment,setComment]=useState('');
   const [musicOpen,setMusicOpen]=useState(false);
   const name=anonName(post.id),color=anonColor(post.id);
+  const mine=isMyPost(post);
   const send=async()=>{
     if(!comment.trim()) return;
     await onAddComment(post.id,comment.trim());
@@ -351,7 +426,13 @@ function DetailModal({post,onClose,onReact,onDonate,onReport,onAddComment}) {
         <button className="modal-close" onClick={onClose}>✕</button>
         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
           <div style={{width:36,height:36,borderRadius:'50%',background:color+'22',color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:600,flexShrink:0}}>{name[0]}</div>
-          <div><div style={{fontSize:14,color:'#aaa'}}>{name}</div><div style={{fontSize:12,color:'#555'}}>{timeAgo(post.created_at)}</div></div>
+          <div>
+            <div style={{fontSize:14,color:'#aaa'}}>{name}{mine&&<span style={{fontSize:10,color:'#7c6faf',marginLeft:6}}>내 글</span>}</div>
+            <div style={{fontSize:12,color:'#555',display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+              <span>{timeAgo(post.created_at)}</span>
+              {post.updated_at&&<span className="edited-badge" onClick={()=>onHistory(post.id)}>수정됨 {timeAgo(post.updated_at)} ▸ 히스토리</span>}
+            </div>
+          </div>
         </div>
         <div style={{fontSize:11,background:'#1e1e2e',color:'#888',padding:'3px 10px',borderRadius:20,display:'inline-block',marginBottom:12}}>{EMOTION_ICONS[post.emotion]} {post.emotion}</div>
         <div className="modal-text">{post.text}</div>
@@ -365,7 +446,14 @@ function DetailModal({post,onClose,onReact,onDonate,onReport,onAddComment}) {
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
           <button className="donate-btn" onClick={onDonate}>☕ 응원 보내기</button>
           <button className="action-btn" onClick={()=>setMusicOpen(true)}>🎵 음악 추천받기</button>
-          <button className="action-btn danger" onClick={()=>onReport(post.id)}>🚩 신고</button>
+          {mine?(
+            <>
+              <button className="action-btn mine" onClick={()=>{onClose();onEdit(post);}}>✏️ 수정</button>
+              <button className="action-btn mine mine-del" onClick={()=>{onClose();onDelete(post.id);}}>🗑️ 삭제</button>
+            </>
+          ):(
+            <button className="action-btn danger" onClick={()=>onReport(post.id)}>🚩 신고</button>
+          )}
         </div>
         <div className="comments-section">
           <div className="comments-title">댓글 {post.comments.length}개</div>
@@ -405,7 +493,7 @@ function WritePage({onSubmit,loading}) {
       <div className="write-emotion-row">
         {EMOTIONS.map(e=><button key={e} className={`emotion-chip ${emotion===e?'selected':''}`} onClick={()=>setEmotion(e)}>{EMOTION_ICONS[e]} {e}</button>)}
       </div>
-      <textarea className="write-textarea" placeholder="오늘 있었던 일, 지금 느끼는 감정... 뭐든 괜찮아요." maxLength={1000} value={text} onChange={e=>setText(e.target.value)}/>
+      <textarea className="write-textarea" placeholder="오늘 있었던 일, 지금 느끼는 감정... 뭐든 괜찮아요.&#10;줄바꿈도 돼요 :)" maxLength={1000} value={text} onChange={e=>setText(e.target.value)}/>
       <div className="write-footer">
         <div className="char-count">{text.length} / 1000</div>
         <button className="submit-btn" disabled={!text.trim()||!emotion||loading} onClick={()=>onSubmit(text,emotion)}>
@@ -425,6 +513,8 @@ function App() {
   const [donateOpen,setDonateOpen]=useState(false);
   const [inquiryOpen,setInquiryOpen]=useState(false);
   const [reportTarget,setReportTarget]=useState(null);
+  const [editTarget,setEditTarget]=useState(null);
+  const [historyTarget,setHistoryTarget]=useState(null);
   const [toast,setToast]=useState({msg:'',visible:false});
   const [popularTab,setPopularTab]=useState('24h');
   const toastTimer=useRef(null);
@@ -450,27 +540,22 @@ function App() {
         e.preventDefault(); g.classList.add('active'); setTimeout(()=>g.classList.remove('active'),2000);
       }
     };
-    const onVis=()=>{ if(document.visibilityState==='hidden') g.classList.add('active'); else setTimeout(()=>g.classList.remove('active'),800); };
     document.addEventListener('keydown',onKey);
-    document.addEventListener('visibilitychange',onVis);
     document.addEventListener('contextmenu',e=>e.preventDefault());
-    return()=>{ document.removeEventListener('keydown',onKey); document.removeEventListener('visibilitychange',onVis); };
+    return()=>{ document.removeEventListener('keydown',onKey); };
   },[]);
 
+  const updatePost=(id,changes)=>{
+    setPosts(prev=>prev.map(p=>p.id===id?{...p,...changes}:p));
+    setDetail(d=>d&&d.id===id?{...d,...changes}:d);
+  };
+
   async function handleReact(postId,key,currentReaction) {
-    setPosts(prev=>prev.map(p=>{
-      if(p.id!==postId) return p;
-      const r={...p.reactions};
-      if(currentReaction) r[currentReaction]--;
-      if(currentReaction!==key) r[key]++;
-      return {...p,reactions:r,myReaction:currentReaction===key?null:key};
-    }));
-    if(detail?.id===postId) setDetail(d=>{
-      const r={...d.reactions};
-      if(currentReaction) r[currentReaction]--;
-      if(currentReaction!==key) r[key]++;
-      return {...d,reactions:r,myReaction:currentReaction===key?null:key};
-    });
+    const rc=posts.find(p=>p.id===postId)?.reactions||{};
+    const newR={...rc};
+    if(currentReaction) newR[currentReaction]--;
+    if(currentReaction!==key) newR[key]++;
+    updatePost(postId,{reactions:newR,myReaction:currentReaction===key?null:key});
     if(currentReaction===key) {
       await sb.from('reactions').delete().match({post_id:postId,session_id:SESSION_ID});
       showToast('리액션을 취소했어요');
@@ -482,7 +567,7 @@ function App() {
 
   async function handleSubmit(text,emotion) {
     setSubmitting(true);
-    const {data}=await sb.from('posts').insert({emotion,text}).select().single();
+    const {data}=await sb.from('posts').insert({emotion,text,session_id:SESSION_ID}).select().single();
     if(data){
       setPosts(prev=>[{...data,reactions:{heart:0,cheer:0,same:0,support:0,metoo:0},myReaction:null,comments:[]},...prev]);
       setPage('feed');
@@ -505,13 +590,42 @@ function App() {
     setPosts(prev=>prev.filter(p=>p.id!==postId));
     if(detail?.id===postId) setDetail(null);
     setReportTarget(null);
-    showToast('🚩 신고가 접수됐어요. 24시간 내 검토합니다.');
+    showToast('🚩 신고가 접수됐어요');
+  }
+
+  async function handleEdit(postId,oldText,newText) {
+    // 수정 전 내용을 히스토리에 저장
+    await sb.from('post_edits').insert({post_id:postId,old_text:oldText});
+    const now=new Date().toISOString();
+    await sb.from('posts').update({text:newText,updated_at:now}).eq('id',postId);
+    updatePost(postId,{text:newText,updated_at:now});
+    setEditTarget(null);
+    showToast('✏️ 수정됐어요');
+  }
+
+  async function handleDelete(postId) {
+    if(!confirm('내 일기를 삭제할까요? 되돌릴 수 없어요.')) return;
+    await sb.from('posts').delete().eq('id',postId);
+    setPosts(prev=>prev.filter(p=>p.id!==postId));
+    if(detail?.id===postId) setDetail(null);
+    showToast('🗑️ 일기가 삭제됐어요');
   }
 
   const popularPosts=[...posts].sort((a,b)=>{
     if(popularTab==='24h'){const aN=new Date(a.created_at)>new Date(Date.now()-86400000);const bN=new Date(b.created_at)>new Date(Date.now()-86400000);if(aN!==bN) return bN-aN;}
     else if(popularTab==='7d'){const aN=new Date(a.created_at)>new Date(Date.now()-604800000);const bN=new Date(b.created_at)>new Date(Date.now()-604800000);if(aN!==bN) return bN-aN;}
     return totalR(b.reactions)-totalR(a.reactions);
+  });
+
+  const cardProps=(post)=>({
+    post,
+    onClick:()=>setDetail(post),
+    onReact:handleReact,
+    onDonate:()=>setDonateOpen(true),
+    onReport:id=>setReportTarget(id),
+    onEdit:p=>setEditTarget(p),
+    onDelete:handleDelete,
+    onHistory:id=>setHistoryTarget(id),
   });
 
   return (
@@ -529,7 +643,7 @@ function App() {
           <div className="feed-header"><div className="feed-title">모두의 일기 🌙</div><div className="feed-sub">익명의 누군가가 오늘의 감정을 기록했어요</div></div>
           {loading?<div className="loading"><div className="spinner"/><span>불러오는 중...</span></div>
           :posts.length===0?<div className="empty-state"><div style={{fontSize:40,marginBottom:12}}>📖</div><p>아직 일기가 없어요. 첫 번째로 써볼까요?</p></div>
-          :posts.map(p=><DiaryCard key={p.id} post={p} onClick={()=>setDetail(p)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)}/>)}
+          :posts.map(p=><DiaryCard key={p.id} {...cardProps(p)}/>)}
         </>}
         {page==='popular'&&<>
           <div className="feed-header"><div className="feed-title">인기 일기 🔥</div><div className="feed-sub">가장 많은 공감을 받은 이야기들</div></div>
@@ -538,16 +652,18 @@ function App() {
               <button key={k} className={`tab-btn ${popularTab===k?'active':''}`} onClick={()=>setPopularTab(k)}>{l}</button>
             ))}
           </div>
-          {popularPosts.map((p,i)=><DiaryCard key={p.id} post={p} rank={i+1} onClick={()=>setDetail(p)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)}/>)}
+          {popularPosts.map((p,i)=><DiaryCard key={p.id} {...cardProps(p)} rank={i+1}/>)}
         </>}
         {page==='write'&&<WritePage onSubmit={handleSubmit} loading={submitting}/>}
       </div>
-      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)} onAddComment={handleAddComment}/>}
+      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)} onEdit={p=>setEditTarget(p)} onDelete={handleDelete} onAddComment={handleAddComment} onHistory={id=>setHistoryTarget(id)}/>}
       {donateOpen&&<DonateModal onClose={()=>setDonateOpen(false)}/>}
       {reportTarget&&<ReportModal onClose={()=>setReportTarget(null)} onSubmit={reason=>handleReport(reportTarget,reason)}/>}
+      {editTarget&&<EditModal post={editTarget} onClose={()=>setEditTarget(null)} onSave={handleEdit}/>}
+      {historyTarget&&<HistoryModal postId={historyTarget} onClose={()=>setHistoryTarget(null)}/>}
       {inquiryOpen&&<InquiryModal onClose={()=>setInquiryOpen(false)}/>}
       <Toast msg={toast.msg} visible={toast.visible}/>
-      <div className="footer-bar" style={{textAlign:'center',paddingTop:8}}>
+      <div className="footer-bar">
         <button className="inquiry-trigger" onClick={()=>setInquiryOpen(true)}>💡 기능 추가 문의하기</button>
       </div>
     </>
