@@ -138,6 +138,12 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; backgroun
 /* Edit modal */
 .edit-textarea { width: 100%; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 12px; padding: 14px; color: #e8e8f0; font-size: 15px; line-height: 1.7; resize: none; min-height: 180px; font-family: inherit; outline: none; white-space: pre-wrap; }
 .edit-textarea:focus { border-color: #a78bfa; }
+/* 카드 최근 댓글 미리보기 */
+.card-comment-preview { margin-top: 12px; padding: 10px 12px; background: #1a1a27; border-radius: 10px; display: flex; gap: 8px; align-items: flex-start; }
+.card-comment-avatar { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+.card-comment-body { flex: 1; min-width: 0; }
+.card-comment-name { font-size: 11px; color: #555; margin-bottom: 2px; }
+.card-comment-text { font-size: 13px; color: #888; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* History */
 .history-item { border: 1px solid #1e1e2e; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
 .history-meta { font-size: 11px; color: #555; margin-bottom: 6px; }
@@ -406,10 +412,11 @@ function InquiryModal({onClose}) {
   );
 }
 
-function DiaryCard({post,rank,onClick,onReact,onDonate,onReport,onEdit,onDelete,onHistory}) {
+function DiaryCard({post,rank,onClick,onReact,onReport,onEdit,onDelete,onHistory}) {
   const name=anonName(post.id),color=anonColor(post.id);
   const mine=isMyPost(post);
   const canAct=!!post.post_password||mine;
+  const latestComment=post.comments.length?post.comments.reduce((a,b)=>new Date(a.created_at)>new Date(b.created_at)?a:b):null;
   return (
     <div className="card">
       {rank&&<div className={`rank-badge rank-${rank<=3?rank:'n'}`}>{rank}</div>}
@@ -435,6 +442,15 @@ function DiaryCard({post,rank,onClick,onReact,onDonate,onReport,onEdit,onDelete,
           </button>
         ))}
       </div>
+      {latestComment&&(()=>{const cn=anonName(latestComment.id),cc=anonColor(latestComment.id);return(
+        <div className="card-comment-preview" onClick={onClick} style={{cursor:'pointer'}}>
+          <div className="card-comment-avatar" style={{background:cc+'22',color:cc}}>{cn[0]}</div>
+          <div className="card-comment-body">
+            <div className="card-comment-name">{cn}</div>
+            <div className="card-comment-text">{latestComment.text}</div>
+          </div>
+        </div>
+      );})()}
       <div className="card-actions" onClick={e=>e.stopPropagation()}>
         <button className="action-btn" onClick={onClick}>💬 {post.comments.length}개 댓글</button>
         {canAct?(
