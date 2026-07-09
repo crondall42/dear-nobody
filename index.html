@@ -163,8 +163,8 @@ const SESSION_ID = (() => {
 sb.from('visitors').insert({ session_id: SESSION_ID }).then(() => {});
 
 const COLORS = ['#a78bfa','#34d399','#60a5fa','#f472b6','#fb923c','#a3e635','#38bdf8','#c084fc'];
-const EMOTIONS = ['슬픔','외로움','불안','화남','지침','설렘','감사','그냥'];
-const EMOTION_ICONS = {슬픔:'😢',외로움:'🌙',불안:'😰',화남:'😤',지침:'😮‍💨',설렘:'✨',감사:'🙏',그냥:'📝'};
+const EMOTIONS = ['행복','설렘','뿌듯','신남','평온','감사','슬픔','외로움','불안','화남','지침','그냥'];
+const EMOTION_ICONS = {행복:'😊',설렘:'💓',뿌듯:'✨',신남:'🎉',평온:'🌸',감사:'🙏',슬픔:'😢',외로움:'🌙',불안:'😰',화남:'😤',지침:'😮‍💨',그냥:'📝'};
 const REACTIONS = [
   {key:'heart',emoji:'❤️',label:'좋아요'},
   {key:'cheer',emoji:'💪',label:'힘내요'},
@@ -173,13 +173,17 @@ const REACTIONS = [
   {key:'metoo',emoji:'🙋',label:'나도 그랬어요'},
 ];
 const MUSIC_DB = {
+  행복:[{song:'Happy',artist:'Pharrell Williams',emoji:'☀️'},{song:'좋은 날',artist:'아이유',emoji:'🌸'},{song:'Dynamite',artist:'BTS',emoji:'✨'}],
+  설렘:[{song:'설레는 밤',artist:'10cm',emoji:'💓'},{song:'첫사랑',artist:'아이유',emoji:'🌹'},{song:'Butterflies',artist:'Katy Perry',emoji:'🦋'}],
+  뿌듯:[{song:'Beautiful',artist:'Crush',emoji:'💛'},{song:'So Good',artist:'Halsey',emoji:'🌟'},{song:'고마워',artist:'거미',emoji:'🏆'}],
+  신남:[{song:'FIRE',artist:'BTS',emoji:'🔥'},{song:'Gentleman',artist:'싸이',emoji:'🎊'},{song:'우리집',artist:'지코',emoji:'🎉'}],
+  평온:[{song:'lofi hip hop',artist:'ChillHop',emoji:'☕'},{song:'Breathe',artist:'이창섭',emoji:'🌿'},{song:'밤편지',artist:'아이유',emoji:'🌙'}],
+  감사:[{song:'Beautiful',artist:'Crush',emoji:'💛'},{song:'고마워',artist:'거미',emoji:'🙏'},{song:'사랑에 빠지고 싶다',artist:'폴킴',emoji:'🌺'}],
   슬픔:[{song:'봄날',artist:'BTS',emoji:'🎹'},{song:'Sad Eyes',artist:'Coldplay',emoji:'🎸'},{song:'빗소리',artist:'혁오',emoji:'🎵'}],
   외로움:[{song:'밤편지',artist:'아이유',emoji:'🌙'},{song:'오랜 날 오랜 밤',artist:'악동뮤지션',emoji:'⭐'},{song:'홀로',artist:'Zion.T',emoji:'🎹'}],
   불안:[{song:'Fix You',artist:'Coldplay',emoji:'💙'},{song:'Breathe',artist:'이창섭',emoji:'🌿'},{song:'다 잘 될 거야',artist:'멜로망스',emoji:'🌤'}],
   화남:[{song:'Lose Yourself',artist:'Eminem',emoji:'🔥'},{song:'화',artist:'기리보이',emoji:'💢'},{song:'거짓말',artist:'BIGBANG',emoji:'⚡'}],
   지침:[{song:'자라',artist:'아이유',emoji:'🌙'},{song:'Tired',artist:'Bazzi',emoji:'😴'},{song:'쉬어요',artist:'폴킴',emoji:'☁️'}],
-  설렘:[{song:'좋은 날',artist:'아이유',emoji:'🌸'},{song:'Happy',artist:'Pharrell',emoji:'🌈'},{song:'Dynamite',artist:'BTS',emoji:'✨'}],
-  감사:[{song:'Beautiful',artist:'Crush',emoji:'💛'},{song:'고마워',artist:'거미',emoji:'🙏'},{song:'사랑에 빠지고 싶다',artist:'폴킴',emoji:'🌺'}],
   그냥:[{song:'에잇',artist:'아이유',emoji:'🎵'},{song:'lofi hip hop',artist:'ChillHop',emoji:'☕'},{song:'Daylight',artist:'Taylor Swift',emoji:'🌅'}],
 };
 
@@ -207,6 +211,10 @@ function fmtFull(ts) {
 }
 function totalR(r) { return Object.values(r||{}).reduce((a,b)=>a+b,0); }
 function isMyPost(post) { return post.session_id === SESSION_ID; }
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 async function fetchPosts() {
   const {data:posts}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(50);
@@ -281,6 +289,34 @@ function ReportModal({onClose,onSubmit}) {
       <button className="report-submit" disabled={sel===null} onClick={()=>onSubmit(opts[sel])}>신고 접수</button>
       <button className="cancel-btn" onClick={onClose}>취소</button>
     </div></div>
+  );
+}
+
+function PasswordModal({title,onClose,onConfirm}) {
+  const [pw,setPw]=useState('');
+  const [error,setError]=useState(false);
+  const [loading,setLoading]=useState(false);
+  async function tryConfirm() {
+    if(!pw) return;
+    setLoading(true);
+    const ok=await onConfirm(pw);
+    if(!ok){setError(true);setLoading(false);}
+  }
+  return (
+    <div className="overlay-modal">
+      <div className="overlay-box" style={{textAlign:'left'}}>
+        <div style={{fontSize:16,fontWeight:700,marginBottom:4}}>🔑 {title}</div>
+        <div style={{fontSize:13,color:'#666',marginBottom:14}}>작성 시 설정한 비밀번호를 입력하세요</div>
+        <input type="password" className="inquiry-input" style={{marginBottom:0}} placeholder="비밀번호"
+          value={pw} onChange={e=>{setPw(e.target.value);setError(false);}}
+          onKeyDown={e=>{if(e.key==='Enter')tryConfirm();}} autoFocus/>
+        {error&&<div style={{fontSize:12,color:'#f87171',marginTop:6}}>비밀번호가 틀렸어요</div>}
+        <div style={{display:'flex',gap:8,marginTop:14}}>
+          <button className="cancel-btn" style={{width:'auto',marginTop:0}} onClick={onClose}>취소</button>
+          <button className="submit-btn" disabled={!pw||loading} onClick={tryConfirm}>{loading?'확인 중...':'확인'}</button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -369,6 +405,7 @@ function InquiryModal({onClose}) {
 function DiaryCard({post,rank,onClick,onReact,onDonate,onReport,onEdit,onDelete,onHistory}) {
   const name=anonName(post.id),color=anonColor(post.id);
   const mine=isMyPost(post);
+  const canAct=!!post.post_password||mine;
   return (
     <div className="card">
       {rank&&<div className={`rank-badge rank-${rank<=3?rank:'n'}`}>{rank}</div>}
@@ -396,10 +433,10 @@ function DiaryCard({post,rank,onClick,onReact,onDonate,onReport,onEdit,onDelete,
       </div>
       <div className="card-actions" onClick={e=>e.stopPropagation()}>
         <button className="action-btn" onClick={onClick}>💬 {post.comments.length}개 댓글</button>
-        {mine?(
+        {canAct?(
           <>
             <button className="action-btn mine" onClick={()=>onEdit(post)}>✏️ 수정</button>
-            <button className="action-btn mine mine-del" onClick={()=>onDelete(post.id)}>🗑️ 삭제</button>
+            <button className="action-btn mine mine-del" onClick={()=>onDelete(post)}>🗑️ 삭제</button>
           </>
         ):(
           <button className="action-btn danger" onClick={()=>onReport(post.id)}>🚩 신고</button>
@@ -415,6 +452,7 @@ function DetailModal({post,onClose,onReact,onDonate,onReport,onEdit,onDelete,onA
   const [musicOpen,setMusicOpen]=useState(false);
   const name=anonName(post.id),color=anonColor(post.id);
   const mine=isMyPost(post);
+  const canAct=!!post.post_password||mine;
   const send=async()=>{
     if(!comment.trim()) return;
     await onAddComment(post.id,comment.trim());
@@ -446,10 +484,10 @@ function DetailModal({post,onClose,onReact,onDonate,onReport,onEdit,onDelete,onA
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
           <button className="donate-btn" onClick={onDonate}>☕ 응원 보내기</button>
           <button className="action-btn" onClick={()=>setMusicOpen(true)}>🎵 음악 추천받기</button>
-          {mine?(
+          {canAct?(
             <>
               <button className="action-btn mine" onClick={()=>{onClose();onEdit(post);}}>✏️ 수정</button>
-              <button className="action-btn mine mine-del" onClick={()=>{onClose();onDelete(post.id);}}>🗑️ 삭제</button>
+              <button className="action-btn mine mine-del" onClick={()=>{onClose();onDelete(post);}}>🗑️ 삭제</button>
             </>
           ):(
             <button className="action-btn danger" onClick={()=>onReport(post.id)}>🚩 신고</button>
@@ -482,6 +520,7 @@ function DetailModal({post,onClose,onReact,onDonate,onReport,onEdit,onDelete,onA
 function WritePage({onSubmit,loading}) {
   const [text,setText]=useState('');
   const [emotion,setEmotion]=useState(null);
+  const [password,setPassword]=useState('');
   return (
     <div className="write-wrap">
       <div className="write-title">오늘 어떤 마음이에요?</div>
@@ -494,9 +533,14 @@ function WritePage({onSubmit,loading}) {
         {EMOTIONS.map(e=><button key={e} className={`emotion-chip ${emotion===e?'selected':''}`} onClick={()=>setEmotion(e)}>{EMOTION_ICONS[e]} {e}</button>)}
       </div>
       <textarea className="write-textarea" placeholder="오늘 있었던 일, 지금 느끼는 감정... 뭐든 괜찮아요.&#10;줄바꿈도 돼요 :)" maxLength={1000} value={text} onChange={e=>setText(e.target.value)}/>
-      <div className="write-footer">
+      <div style={{marginTop:16,paddingTop:16,borderTop:'1px solid #1e1e2e'}}>
+        <div style={{fontSize:13,color:'#888',marginBottom:8}}>🔑 수정/삭제 비밀번호 <span style={{color:'#555',fontSize:12}}>(선택사항)</span></div>
+        <input type="password" className="inquiry-input" style={{marginBottom:6}} placeholder="나중에 수정하거나 삭제하려면 비밀번호를 설정하세요" value={password} onChange={e=>setPassword(e.target.value)} maxLength={50}/>
+        <div style={{fontSize:12,color:'#555'}}>{password?'✅ 비밀번호가 설정됐어요. 잊지 마세요!':'비밀번호 없이 올리면 수정/삭제가 불가능해요'}</div>
+      </div>
+      <div className="write-footer" style={{marginTop:16}}>
         <div className="char-count">{text.length} / 1000</div>
-        <button className="submit-btn" disabled={!text.trim()||!emotion||loading} onClick={()=>onSubmit(text,emotion)}>
+        <button className="submit-btn" disabled={!text.trim()||!emotion||loading} onClick={()=>onSubmit(text,emotion,password)}>
           {loading?'올리는 중...':'익명으로 올리기'}
         </button>
       </div>
@@ -515,6 +559,7 @@ function App() {
   const [reportTarget,setReportTarget]=useState(null);
   const [editTarget,setEditTarget]=useState(null);
   const [historyTarget,setHistoryTarget]=useState(null);
+  const [passwordModal,setPasswordModal]=useState(null);
   const [toast,setToast]=useState({msg:'',visible:false});
   const [popularTab,setPopularTab]=useState('24h');
   const toastTimer=useRef(null);
@@ -565,9 +610,11 @@ function App() {
     }
   }
 
-  async function handleSubmit(text,emotion) {
+  async function handleSubmit(text,emotion,password) {
     setSubmitting(true);
-    const {data}=await sb.from('posts').insert({emotion,text,session_id:SESSION_ID}).select().single();
+    let pwHash=null;
+    if(password&&password.trim()) pwHash=await sha256(password.trim());
+    const {data}=await sb.from('posts').insert({emotion,text,session_id:SESSION_ID,post_password:pwHash}).select().single();
     if(data){
       setPosts(prev=>[{...data,reactions:{heart:0,cheer:0,same:0,support:0,metoo:0},myReaction:null,comments:[]},...prev]);
       setPage('feed');
@@ -603,12 +650,32 @@ function App() {
     showToast('✏️ 수정됐어요');
   }
 
-  async function handleDelete(postId) {
+  async function doDelete(postId) {
     if(!confirm('내 일기를 삭제할까요? 되돌릴 수 없어요.')) return;
     await sb.from('posts').delete().eq('id',postId);
     setPosts(prev=>prev.filter(p=>p.id!==postId));
     if(detail?.id===postId) setDetail(null);
     showToast('🗑️ 일기가 삭제됐어요');
+  }
+
+  function handleEditClick(post) {
+    if(post.post_password) { setPasswordModal({action:'edit',post}); }
+    else { setEditTarget(post); }
+  }
+
+  function handleDeleteClick(post) {
+    if(post.post_password) { setPasswordModal({action:'delete',post}); }
+    else { doDelete(post.id); }
+  }
+
+  async function handlePasswordConfirm(pw) {
+    const {action,post}=passwordModal;
+    const hash=await sha256(pw);
+    if(hash!==post.post_password) return false;
+    setPasswordModal(null);
+    if(action==='edit') { setEditTarget(post); }
+    else if(action==='delete') { doDelete(post.id); }
+    return true;
   }
 
   const popularPosts=[...posts].sort((a,b)=>{
@@ -623,8 +690,8 @@ function App() {
     onReact:handleReact,
     onDonate:()=>setDonateOpen(true),
     onReport:id=>setReportTarget(id),
-    onEdit:p=>setEditTarget(p),
-    onDelete:handleDelete,
+    onEdit:handleEditClick,
+    onDelete:handleDeleteClick,
     onHistory:id=>setHistoryTarget(id),
   });
 
@@ -656,11 +723,12 @@ function App() {
         </>}
         {page==='write'&&<WritePage onSubmit={handleSubmit} loading={submitting}/>}
       </div>
-      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)} onEdit={p=>setEditTarget(p)} onDelete={handleDelete} onAddComment={handleAddComment} onHistory={id=>setHistoryTarget(id)}/>}
+      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)} onEdit={handleEditClick} onDelete={handleDeleteClick} onAddComment={handleAddComment} onHistory={id=>setHistoryTarget(id)}/>}
       {donateOpen&&<DonateModal onClose={()=>setDonateOpen(false)}/>}
       {reportTarget&&<ReportModal onClose={()=>setReportTarget(null)} onSubmit={reason=>handleReport(reportTarget,reason)}/>}
       {editTarget&&<EditModal post={editTarget} onClose={()=>setEditTarget(null)} onSave={handleEdit}/>}
       {historyTarget&&<HistoryModal postId={historyTarget} onClose={()=>setHistoryTarget(null)}/>}
+      {passwordModal&&<PasswordModal title={passwordModal.action==='edit'?'수정하기':'삭제하기'} onClose={()=>setPasswordModal(null)} onConfirm={handlePasswordConfirm}/>}
       {inquiryOpen&&<InquiryModal onClose={()=>setInquiryOpen(false)}/>}
       <Toast msg={toast.msg} visible={toast.visible}/>
       <div className="footer-bar">
