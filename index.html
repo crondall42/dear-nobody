@@ -171,6 +171,10 @@ const REACTIONS = [
   {key:'same',emoji:'🤝',label:'같은 마음'},
   {key:'support',emoji:'🫂',label:'응원해요'},
   {key:'metoo',emoji:'🙋',label:'나도 그랬어요'},
+  {key:'sad',emoji:'😢',label:'슬퍼요'},
+  {key:'congrats',emoji:'🎉',label:'축하해요'},
+  {key:'warm',emoji:'🤗',label:'따뜻해요'},
+  {key:'surprised',emoji:'😮',label:'놀랍네요'},
 ];
 const MUSIC_DB = {
   행복:[{song:'Happy',artist:'Pharrell Williams',emoji:'☀️'},{song:'좋은 날',artist:'아이유',emoji:'🌸'},{song:'Dynamite',artist:'BTS',emoji:'✨'}],
@@ -441,13 +445,12 @@ function DiaryCard({post,rank,onClick,onReact,onDonate,onReport,onEdit,onDelete,
         ):(
           <button className="action-btn danger" onClick={()=>onReport(post.id)}>🚩 신고</button>
         )}
-        <button className="donate-btn" onClick={onDonate}>☕ 응원 보내기</button>
       </div>
     </div>
   );
 }
 
-function DetailModal({post,onClose,onReact,onDonate,onReport,onEdit,onDelete,onAddComment,onHistory}) {
+function DetailModal({post,onClose,onReact,onReport,onEdit,onDelete,onAddComment,onHistory}) {
   const [comment,setComment]=useState('');
   const [musicOpen,setMusicOpen]=useState(false);
   const name=anonName(post.id),color=anonColor(post.id);
@@ -482,7 +485,6 @@ function DetailModal({post,onClose,onReact,onDonate,onReport,onEdit,onDelete,onA
           ))}
         </div>
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
-          <button className="donate-btn" onClick={onDonate}>☕ 응원 보내기</button>
           <button className="action-btn" onClick={()=>setMusicOpen(true)}>🎵 음악 추천받기</button>
           {canAct?(
             <>
@@ -554,7 +556,6 @@ function App() {
   const [loading,setLoading]=useState(true);
   const [submitting,setSubmitting]=useState(false);
   const [detail,setDetail]=useState(null);
-  const [donateOpen,setDonateOpen]=useState(false);
   const [inquiryOpen,setInquiryOpen]=useState(false);
   const [reportTarget,setReportTarget]=useState(null);
   const [editTarget,setEditTarget]=useState(null);
@@ -688,7 +689,6 @@ function App() {
     post,
     onClick:()=>setDetail(post),
     onReact:handleReact,
-    onDonate:()=>setDonateOpen(true),
     onReport:id=>setReportTarget(id),
     onEdit:handleEditClick,
     onDelete:handleDeleteClick,
@@ -723,8 +723,7 @@ function App() {
         </>}
         {page==='write'&&<WritePage onSubmit={handleSubmit} loading={submitting}/>}
       </div>
-      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)} onEdit={handleEditClick} onDelete={handleDeleteClick} onAddComment={handleAddComment} onHistory={id=>setHistoryTarget(id)}/>}
-      {donateOpen&&<DonateModal onClose={()=>setDonateOpen(false)}/>}
+      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onReport={id=>setReportTarget(id)} onEdit={handleEditClick} onDelete={handleDeleteClick} onAddComment={handleAddComment} onHistory={id=>setHistoryTarget(id)}/>}
       {reportTarget&&<ReportModal onClose={()=>setReportTarget(null)} onSubmit={reason=>handleReport(reportTarget,reason)}/>}
       {editTarget&&<EditModal post={editTarget} onClose={()=>setEditTarget(null)} onSave={handleEdit}/>}
       {historyTarget&&<HistoryModal postId={historyTarget} onClose={()=>setHistoryTarget(null)}/>}
