@@ -249,7 +249,7 @@ async function fetchPosts() {
   const {data:comments}=await sb.from('comments').select('*');
   return posts.map(p=>{
     const pr=(reactions||[]).filter(r=>r.post_id===p.id);
-    const rc={heart:0,cheer:0,same:0,support:0,metoo:0};
+    const rc=Object.fromEntries(REACTIONS.map(r=>[r.key,0]));
     pr.forEach(r=>{ if(rc[r.reaction_type]!==undefined) rc[r.reaction_type]++; });
     const myR=pr.find(r=>r.session_id===SESSION_ID);
     return {...p,reactions:rc,myReaction:myR?myR.reaction_type:null,comments:(comments||[]).filter(c=>c.post_id===p.id)};
@@ -710,9 +710,9 @@ function App() {
 
   async function handleReact(postId,key,currentReaction) {
     const rc=posts.find(p=>p.id===postId)?.reactions||{};
-    const newR={...rc};
-    if(currentReaction) newR[currentReaction]--;
-    if(currentReaction!==key) newR[key]++;
+    const newR={...Object.fromEntries(REACTIONS.map(r=>[r.key,0])),...rc};
+    if(currentReaction) newR[currentReaction]=(newR[currentReaction]||0)-1;
+    if(currentReaction!==key) newR[key]=(newR[key]||0)+1;
     updatePost(postId,{reactions:newR,myReaction:currentReaction===key?null:key});
     if(currentReaction===key) {
       await sb.from('reactions').delete().match({post_id:postId,session_id:SESSION_ID});
@@ -729,7 +729,7 @@ function App() {
     if(password&&password.trim()) pwHash=await sha256(password.trim());
     const {data}=await sb.from('posts').insert({emotion,text,session_id:SESSION_ID,post_password:pwHash}).select().single();
     if(data){
-      setPosts(prev=>[{...data,reactions:{heart:0,cheer:0,same:0,support:0,metoo:0},myReaction:null,comments:[]},...prev]);
+      setPosts(prev=>[{...data,reactions:Object.fromEntries(REACTIONS.map(r=>[r.key,0])),myReaction:null,comments:[]},...prev]);
       setPage('feed');
       showToast('✨ 일기가 익명으로 올라갔어요');
     }
