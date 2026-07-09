@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dear Nobody — 익명 감정 일기</title>
+<script>
+  const SUPABASE_URL      = 'https://vbylfioetbooyqqsjvli.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_tNd2YpOuynm_2yhVSWTrag_wBJM25Ri';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #0f0f13; color: #e8e8f0; min-height: 100vh; }
+#screenshot-guard { display: none; position: fixed; inset: 0; z-index: 99999; background: #0f0f13; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+#screenshot-guard.active { display: flex; }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #1a1a24; } ::-webkit-scrollbar-thumb { background: #333350; border-radius: 3px; }
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(15,15,19,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid #1e1e2e; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; color: #a78bfa; }
+.nav-logo span { color: #e8e8f0; }
+.nav-tabs { display: flex; gap: 4px; }
+.nav-tab { background: none; border: none; color: #666; font-size: 13px; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.nav-tab:hover { color: #e8e8f0; background: #1e1e2e; }
+.nav-tab.active { color: #a78bfa; background: rgba(167,139,250,0.1); font-weight: 600; }
+.nav-write { background: #a78bfa; color: #0f0f13; border: none; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.nav-write:hover { background: #c4b5fd; }
+.main { padding-top: 72px; max-width: 680px; margin: 0 auto; padding-left: 16px; padding-right: 16px; padding-bottom: 40px; }
+.feed-header { margin: 24px 0 20px; }
+.feed-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.feed-sub { font-size: 13px; color: #666; }
+.card { background: #16161f; border: 1px solid #1e1e2e; border-radius: 16px; padding: 20px; margin-bottom: 14px; transition: border-color 0.2s; cursor: pointer; position: relative; user-select: none; }
+.card:hover { border-color: #333350; }
+.card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.card-anon { display: flex; align-items: center; gap: 8px; }
+.card-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+.card-name { font-size: 13px; color: #aaa; }
+.card-time { font-size: 12px; color: #555; }
+.card-emotion { font-size: 11px; background: #1e1e2e; color: #888; padding: 3px 10px; border-radius: 20px; }
+.card-text { font-size: 15px; line-height: 1.7; color: #d0d0e0; margin-bottom: 16px; word-break: keep-all; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.card-reactions { display: flex; gap: 6px; flex-wrap: wrap; }
+.reaction-btn { display: flex; align-items: center; gap: 5px; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #888; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.reaction-btn:hover { border-color: #a78bfa; color: #a78bfa; background: rgba(167,139,250,0.07); }
+.reaction-btn.active { border-color: #a78bfa; color: #a78bfa; background: rgba(167,139,250,0.12); }
+.card-actions { display: flex; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #1e1e2e; align-items: center; }
+.action-btn { background: none; border: none; color: #555; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 8px; transition: all 0.15s; font-family: inherit; }
+.action-btn:hover { color: #a78bfa; background: rgba(167,139,250,0.07); }
+.action-btn.danger:hover { color: #f87171; background: rgba(248,113,113,0.07); }
+.donate-btn { margin-left: auto; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; border-radius: 20px; font-size: 12px; padding: 5px 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; font-weight: 600; }
+.donate-btn:hover { background: rgba(251,191,36,0.2); }
+.rank-badge { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.rank-1 { background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #0f0f13; }
+.rank-2 { background: linear-gradient(135deg,#9ca3af,#6b7280); color: #0f0f13; }
+.rank-3 { background: linear-gradient(135deg,#cd7c3e,#b06020); color: #fff; }
+.rank-n { background: #1e1e2e; color: #666; }
+.write-wrap { padding: 24px 0; }
+.write-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.write-sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+.write-emotion-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.emotion-chip { background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 6px 14px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.emotion-chip.selected { background: rgba(167,139,250,0.15); border-color: #a78bfa; color: #a78bfa; font-weight: 600; }
+.write-textarea { width: 100%; background: #16161f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 16px; color: #e8e8f0; font-size: 15px; line-height: 1.7; resize: none; min-height: 200px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+.write-textarea:focus { border-color: #333350; }
+.write-textarea::placeholder { color: #444; }
+.write-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+.char-count { font-size: 12px; color: #555; }
+.submit-btn { background: #a78bfa; color: #0f0f13; border: none; padding: 10px 24px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.submit-btn:hover { background: #c4b5fd; }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.anon-notice { background: #16161f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; display: flex; gap: 10px; align-items: flex-start; }
+.anon-notice-text { font-size: 13px; color: #666; line-height: 1.5; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
+.modal { background: #16161f; border: 1px solid #1e1e2e; border-radius: 20px; width: 100%; max-width: 640px; margin: auto; padding: 24px; position: relative; }
+.modal-close { position: absolute; top: 16px; right: 16px; background: #1e1e2e; border: none; color: #888; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.modal-text { font-size: 16px; line-height: 1.8; color: #d0d0e0; margin-bottom: 20px; word-break: keep-all; white-space: pre-wrap; }
+.comments-section { border-top: 1px solid #1e1e2e; padding-top: 20px; margin-top: 20px; }
+.comments-title { font-size: 14px; font-weight: 600; color: #888; margin-bottom: 14px; }
+.comment-item { display: flex; gap: 10px; margin-bottom: 14px; }
+.comment-body { flex: 1; }
+.comment-name { font-size: 12px; color: #666; margin-bottom: 3px; }
+.comment-text { font-size: 14px; color: #c0c0d0; line-height: 1.6; }
+.comment-input-row { display: flex; gap: 8px; margin-top: 16px; }
+.comment-input { flex: 1; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 8px 16px; color: #e8e8f0; font-size: 14px; font-family: inherit; outline: none; }
+.comment-input:focus { border-color: #a78bfa; }
+.comment-input::placeholder { color: #444; }
+.comment-send { background: #a78bfa; border: none; color: #0f0f13; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.music-modal { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: #16161f; border-top: 1px solid #1e1e2e; padding: 20px; border-radius: 20px 20px 0 0; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.34,1.26,0.64,1); }
+.music-modal.open { transform: translateY(0); }
+.music-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.music-title { font-size: 16px; font-weight: 700; }
+.music-close { background: #1e1e2e; border: none; color: #888; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+.music-sub { font-size: 12px; color: #666; margin-bottom: 16px; }
+.music-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+.music-item { display: flex; align-items: center; gap: 12px; background: #1e1e2e; border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: background 0.15s; }
+.music-item:hover, .music-item.playing { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); }
+.music-thumb { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; background: #252535; }
+.music-info { flex: 1; }
+.music-song { font-size: 14px; font-weight: 500; }
+.music-artist { font-size: 12px; color: #666; margin-top: 1px; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #252535; border: 1px solid #333350; color: #e8e8f0; font-size: 13px; padding: 10px 20px; border-radius: 20px; z-index: 9999; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.overlay-modal { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); padding: 20px; }
+.overlay-box { background: #16161f; border: 1px solid #1e1e2e; border-radius: 20px; padding: 28px; width: 100%; max-width: 380px; text-align: center; }
+.amount-btn { background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 20px; padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; font-family: inherit; margin: 4px; }
+.amount-btn.selected { background: rgba(251,191,36,0.12); border-color: #fbbf24; color: #fbbf24; }
+.donate-confirm { width: 100%; background: #fbbf24; border: none; color: #0f0f13; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 12px; }
+.donate-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+.cancel-btn { background: none; border: none; color: #555; font-size: 13px; cursor: pointer; margin-top: 12px; font-family: inherit; width: 100%; }
+.report-opt { background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #aaa; cursor: pointer; text-align: left; font-family: inherit; transition: all 0.15s; width: 100%; margin-bottom: 8px; }
+.report-opt.selected { border-color: #f87171; color: #f87171; background: rgba(248,113,113,0.07); }
+.report-submit { width: 100%; background: #f87171; border: none; color: #fff; padding: 10px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.report-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+.tab-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+.tab-btn { background: #1e1e2e; border: none; color: #666; font-size: 13px; padding: 6px 16px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.tab-btn.active { background: rgba(167,139,250,0.15); color: #a78bfa; font-weight: 600; }
+.loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: #444; font-size: 14px; gap: 10px; }
+.spinner { width: 20px; height: 20px; border: 2px solid #333; border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state { text-align: center; padding: 60px 20px; color: #444; font-size: 14px; }
+.inquiry-input { width: 100%; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 10px; padding: 11px 14px; color: #e8e8f0; font-size: 14px; font-family: inherit; outline: none; margin-bottom: 10px; }
+.inquiry-input:focus { border-color: #a78bfa; }
+.inquiry-input::placeholder { color: #444; }
+.inquiry-textarea { width: 100%; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 10px; padding: 11px 14px; color: #e8e8f0; font-size: 14px; font-family: inherit; outline: none; resize: none; min-height: 120px; margin-bottom: 10px; }
+.inquiry-textarea:focus { border-color: #a78bfa; }
+.inquiry-textarea::placeholder { color: #444; }
+.footer-bar { max-width: 680px; margin: 0 auto; padding: 0 16px 32px; }
+.inquiry-trigger { background: none; border: 1px solid #1e1e2e; border-radius: 20px; color: #555; font-size: 12px; padding: 6px 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.inquiry-trigger:hover { border-color: #a78bfa; color: #a78bfa; }
+</style>
+</head>
+<body>
+<div id="screenshot-guard">
+  <div style="font-size:32px">🔒</div>
+  <p style="font-size:15px;font-weight:700;color:#e8e8f0">이 공간은 캡쳐할 수 없어요</p>
+  <p style="color:#888;font-size:13px">Dear Nobody의 익명성을 함께 지켜주세요</p>
+</div>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 방문자 기록
+const SESSION_ID = (() => {
+  let id = localStorage.getItem('dn_session');
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem('dn_session', id); }
+  return id;
+})();
+sb.from('visitors').insert({ session_id: SESSION_ID }).then(() => {});
+
+const COLORS = ['#a78bfa','#34d399','#60a5fa','#f472b6','#fb923c','#a3e635','#38bdf8','#c084fc'];
+const EMOTIONS = ['슬픔','외로움','불안','화남','지침','설렘','감사','그냥'];
+const EMOTION_ICONS = {슬픔:'😢',외로움:'🌙',불안:'😰',화남:'😤',지침:'😮‍💨',설렘:'✨',감사:'🙏',그냥:'📝'};
+const REACTIONS = [
+  {key:'heart',emoji:'❤️',label:'좋아요'},
+  {key:'cheer',emoji:'💪',label:'힘내요'},
+  {key:'same',emoji:'🤝',label:'같은 마음'},
+  {key:'support',emoji:'🫂',label:'응원해요'},
+  {key:'metoo',emoji:'🙋',label:'나도 그랬어요'},
+];
+const MUSIC_DB = {
+  슬픔:[{song:'봄날',artist:'BTS',emoji:'🎹'},{song:'Sad Eyes',artist:'Coldplay',emoji:'🎸'},{song:'빗소리',artist:'혁오',emoji:'🎵'}],
+  외로움:[{song:'밤편지',artist:'아이유',emoji:'🌙'},{song:'오랜 날 오랜 밤',artist:'악동뮤지션',emoji:'⭐'},{song:'홀로',artist:'Zion.T',emoji:'🎹'}],
+  불안:[{song:'Fix You',artist:'Coldplay',emoji:'💙'},{song:'Breathe',artist:'이창섭',emoji:'🌿'},{song:'다 잘 될 거야',artist:'멜로망스',emoji:'🌤'}],
+  화남:[{song:'Lose Yourself',artist:'Eminem',emoji:'🔥'},{song:'화',artist:'기리보이',emoji:'💢'},{song:'거짓말',artist:'BIGBANG',emoji:'⚡'}],
+  지침:[{song:'자라',artist:'아이유',emoji:'🌙'},{song:'Tired',artist:'Bazzi',emoji:'😴'},{song:'쉬어요',artist:'폴킴',emoji:'☁️'}],
+  설렘:[{song:'좋은 날',artist:'아이유',emoji:'🌸'},{song:'Happy',artist:'Pharrell',emoji:'🌈'},{song:'Dynamite',artist:'BTS',emoji:'✨'}],
+  감사:[{song:'Beautiful',artist:'Crush',emoji:'💛'},{song:'고마워',artist:'거미',emoji:'🙏'},{song:'사랑에 빠지고 싶다',artist:'폴킴',emoji:'🌺'}],
+  그냥:[{song:'에잇',artist:'아이유',emoji:'🎵'},{song:'lofi hip hop',artist:'ChillHop',emoji:'☕'},{song:'Daylight',artist:'Taylor Swift',emoji:'🌅'}],
+};
+
+function anonName(id) {
+  const s=String(id).replace(/-/g,'');
+  const h=[...s].reduce((a,c)=>a+c.charCodeAt(0),0);
+  const adj=['조용한','따뜻한','작은','맑은','깊은','서툰','솔직한','은은한'];
+  const n=['달','별','구름','바람','새벽','안개','빗소리','파도'];
+  return adj[h%adj.length]+' '+n[Math.floor(h/7)%n.length];
+}
+function anonColor(id) {
+  const h=[...String(id).replace(/-/g,'')].reduce((a,c)=>a+c.charCodeAt(0),0);
+  return COLORS[h%COLORS.length];
+}
+function timeAgo(ts) {
+  const d=Date.now()-new Date(ts).getTime();
+  if(d<60000) return '방금 전';
+  if(d<3600000) return Math.floor(d/60000)+'분 전';
+  if(d<86400000) return Math.floor(d/3600000)+'시간 전';
+  return Math.floor(d/86400000)+'일 전';
+}
+function totalR(r) { return Object.values(r||{}).reduce((a,b)=>a+b,0); }
+
+async function fetchPosts() {
+  const {data:posts}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(50);
+  if(!posts) return [];
+  const {data:reactions}=await sb.from('reactions').select('*');
+  const {data:comments}=await sb.from('comments').select('*');
+  return posts.map(p=>{
+    const pr=(reactions||[]).filter(r=>r.post_id===p.id);
+    const rc={heart:0,cheer:0,same:0,support:0,metoo:0};
+    pr.forEach(r=>{ if(rc[r.reaction_type]!==undefined) rc[r.reaction_type]++; });
+    const myR=pr.find(r=>r.session_id===SESSION_ID);
+    return {...p,reactions:rc,myReaction:myR?myR.reaction_type:null,comments:(comments||[]).filter(c=>c.post_id===p.id)};
+  });
+}
+
+function Toast({msg,visible}) { return <div className={`toast ${visible?'show':''}`}>{msg}</div>; }
+
+function MusicModal({emotion,open,onClose}) {
+  const [playing,setPlaying]=useState(null);
+  const list=MUSIC_DB[emotion]||MUSIC_DB['그냥'];
+  return (
+    <div className={`music-modal ${open?'open':''}`}>
+      <div className="music-header">
+        <div><div className="music-title">🎵 기운 내라고 노래 추천해줄게요</div><div className="music-sub">{EMOTION_ICONS[emotion]} {emotion} 감정에 어울리는 플레이리스트</div></div>
+        <button className="music-close" onClick={onClose}>✕</button>
+      </div>
+      <div className="music-list">
+        {list.map((m,i)=>(
+          <div key={i} className={`music-item ${playing===i?'playing':''}`} onClick={()=>setPlaying(playing===i?null:i)}>
+            <div className="music-thumb">{m.emoji}</div>
+            <div className="music-info"><div className="music-song">{m.song}</div><div className="music-artist">{m.artist}</div></div>
+            <span>{playing===i?'⏸':'▶️'}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DonateModal({onClose}) {
+  const [sel,setSel]=useState(null);
+  const [done,setDone]=useState(false);
+  const amounts=['☕ 커피 한 잔 (1,000원)','🍰 케이크 한 조각 (3,000원)','🌸 응원 한 아름 (5,000원)'];
+  if(done) return (
+    <div className="overlay-modal"><div className="overlay-box">
+      <div style={{fontSize:48,marginBottom:12}}>💜</div>
+      <div style={{fontSize:18,fontWeight:700,marginBottom:8}}>따뜻한 마음 전달됐어요</div>
+      <div style={{fontSize:14,color:'#666',lineHeight:1.6,marginBottom:20}}>익명의 누군가가 당신의 일기에 응원을 보냈어요.</div>
+      <button className="donate-confirm" onClick={onClose}>닫기</button>
+    </div></div>
+  );
+  return (
+    <div className="overlay-modal"><div className="overlay-box">
+      <div style={{fontSize:48,marginBottom:12}}>☕</div>
+      <div style={{fontSize:18,fontWeight:700,marginBottom:8}}>익명으로 응원 보내기</div>
+      <div style={{fontSize:14,color:'#666',lineHeight:1.6,marginBottom:20}}>이 일기를 쓴 분께 작은 응원을 전해보세요.</div>
+      <div>{amounts.map((a,i)=><button key={i} className={`amount-btn ${sel===i?'selected':''}`} onClick={()=>setSel(i)}>{a}</button>)}</div>
+      <button className="donate-confirm" disabled={sel===null} onClick={()=>setDone(true)}>응원 보내기</button>
+      <br/><button className="cancel-btn" onClick={onClose}>취소</button>
+    </div></div>
+  );
+}
+
+function ReportModal({onClose,onSubmit}) {
+  const [sel,setSel]=useState(null);
+  const opts=['욕설 / 혐오 표현','성적으로 부적절한 내용','개인정보 노출','스팸 / 도배','자해 / 자살 관련 내용'];
+  return (
+    <div className="overlay-modal"><div className="overlay-box" style={{textAlign:'left'}}>
+      <div style={{fontSize:16,fontWeight:700,marginBottom:4}}>신고하기</div>
+      <div style={{fontSize:13,color:'#666',marginBottom:16}}>24시간 내에 검토합니다.</div>
+      {opts.map((o,i)=><button key={i} className={`report-opt ${sel===i?'selected':''}`} onClick={()=>setSel(i)}>{o}</button>)}
+      <button className="report-submit" disabled={sel===null} onClick={()=>onSubmit(opts[sel])}>신고 접수</button>
+      <button className="cancel-btn" onClick={onClose}>취소</button>
+    </div></div>
+  );
+}
+
+function InquiryModal({onClose}) {
+  const [subject,setSubject]=useState('');
+  const [content,setContent]=useState('');
+  const [contact,setContact]=useState('');
+  const [done,setDone]=useState(false);
+  const [loading,setLoading]=useState(false);
+  const submit=async()=>{
+    if(!subject.trim()||!content.trim()) return;
+    setLoading(true);
+    await sb.from('inquiries').insert({subject:subject.trim(),content:content.trim(),contact:contact.trim()||null});
+    setDone(true); setLoading(false);
+  };
+  if(done) return (
+    <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal" style={{textAlign:'center',maxWidth:380}}>
+        <div style={{fontSize:40,marginBottom:12}}>✅</div>
+        <div style={{fontSize:17,fontWeight:700,marginBottom:8}}>문의가 접수됐어요</div>
+        <div style={{fontSize:13,color:'#666',lineHeight:1.6,marginBottom:20}}>소중한 의견 감사해요. 검토 후 반영 여부를 알려드릴게요.</div>
+        <button className="submit-btn" onClick={onClose}>닫기</button>
+      </div>
+    </div>
+  );
+  return (
+    <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal" style={{maxWidth:480}}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div style={{fontSize:17,fontWeight:700,marginBottom:4}}>💡 기능 추가 문의</div>
+        <div style={{fontSize:13,color:'#666',marginBottom:20}}>원하는 기능이나 개선사항을 알려주세요</div>
+        <input className="inquiry-input" placeholder="제목 (예: 다크모드 추가 요청)" value={subject} onChange={e=>setSubject(e.target.value)}/>
+        <textarea className="inquiry-textarea" placeholder="자세한 내용을 적어주세요..." value={content} onChange={e=>setContent(e.target.value)}/>
+        <input className="inquiry-input" placeholder="연락처 또는 이메일 (선택사항)" value={contact} onChange={e=>setContact(e.target.value)}/>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
+          <button className="action-btn" onClick={onClose}>취소</button>
+          <button className="submit-btn" disabled={!subject.trim()||!content.trim()||loading} onClick={submit}>{loading?'제출 중...':'문의 보내기'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DiaryCard({post,rank,onClick,onReact,onDonate,onReport}) {
+  const name=anonName(post.id),color=anonColor(post.id);
+  return (
+    <div className="card" onClick={onClick}>
+      {rank&&<div className={`rank-badge rank-${rank<=3?rank:'n'}`}>{rank}</div>}
+      <div className="card-meta">
+        <div className="card-anon">
+          <div className="card-avatar" style={{background:color+'22',color}}>{name[0]}</div>
+          <div><div className="card-name">{name}</div><div className="card-time">{timeAgo(post.created_at)}</div></div>
+        </div>
+        <div className="card-emotion">{EMOTION_ICONS[post.emotion]} {post.emotion}</div>
+      </div>
+      <div className="card-text">{post.text}</div>
+      <div className="card-reactions" onClick={e=>e.stopPropagation()}>
+        {REACTIONS.map(r=>(
+          <button key={r.key} className={`reaction-btn ${post.myReaction===r.key?'active':''}`}
+            onClick={e=>{e.stopPropagation();onReact(post.id,r.key,post.myReaction);}}>
+            {r.emoji} <span>{post.reactions[r.key]}</span>
+          </button>
+        ))}
+      </div>
+      <div className="card-actions" onClick={e=>e.stopPropagation()}>
+        <button className="action-btn" onClick={e=>{e.stopPropagation();onClick();}}>💬 {post.comments.length}개 댓글</button>
+        <button className="action-btn danger" onClick={e=>{e.stopPropagation();onReport(post.id);}}>🚩 신고</button>
+        <button className="donate-btn" onClick={e=>{e.stopPropagation();onDonate();}}>☕ 응원 보내기</button>
+      </div>
+    </div>
+  );
+}
+
+function DetailModal({post,onClose,onReact,onDonate,onReport,onAddComment}) {
+  const [comment,setComment]=useState('');
+  const [musicOpen,setMusicOpen]=useState(false);
+  const name=anonName(post.id),color=anonColor(post.id);
+  const send=async()=>{
+    if(!comment.trim()) return;
+    await onAddComment(post.id,comment.trim());
+    setComment('');
+  };
+  return (
+    <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal">
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+          <div style={{width:36,height:36,borderRadius:'50%',background:color+'22',color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:600,flexShrink:0}}>{name[0]}</div>
+          <div><div style={{fontSize:14,color:'#aaa'}}>{name}</div><div style={{fontSize:12,color:'#555'}}>{timeAgo(post.created_at)}</div></div>
+        </div>
+        <div style={{fontSize:11,background:'#1e1e2e',color:'#888',padding:'3px 10px',borderRadius:20,display:'inline-block',marginBottom:12}}>{EMOTION_ICONS[post.emotion]} {post.emotion}</div>
+        <div className="modal-text">{post.text}</div>
+        <div className="card-reactions" style={{marginBottom:16}}>
+          {REACTIONS.map(r=>(
+            <button key={r.key} className={`reaction-btn ${post.myReaction===r.key?'active':''}`} onClick={()=>onReact(post.id,r.key,post.myReaction)}>
+              {r.emoji} {r.label} <span style={{fontWeight:600}}>{post.reactions[r.key]}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
+          <button className="donate-btn" onClick={onDonate}>☕ 응원 보내기</button>
+          <button className="action-btn" onClick={()=>setMusicOpen(true)}>🎵 음악 추천받기</button>
+          <button className="action-btn danger" onClick={()=>onReport(post.id)}>🚩 신고</button>
+        </div>
+        <div className="comments-section">
+          <div className="comments-title">댓글 {post.comments.length}개</div>
+          {post.comments.length===0&&<div style={{fontSize:13,color:'#444',marginBottom:14}}>첫 댓글을 남겨보세요 🤍</div>}
+          {post.comments.map((c,i)=>{
+            const cn=anonName(c.id+i*100),cc=anonColor(c.id+i*100);
+            return (
+              <div key={c.id} className="comment-item">
+                <div style={{width:28,height:28,borderRadius:'50%',background:cc+'22',color:cc,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:600,flexShrink:0}}>{cn[0]}</div>
+                <div className="comment-body"><div className="comment-name">{cn}</div><div className="comment-text">{c.text}</div></div>
+              </div>
+            );
+          })}
+          <div className="comment-input-row">
+            <input className="comment-input" placeholder="익명으로 댓글 남기기..." value={comment} onChange={e=>setComment(e.target.value)}
+              onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}}/>
+            <button className="comment-send" onClick={send}>보내기</button>
+          </div>
+        </div>
+      </div>
+      <MusicModal emotion={post.emotion} open={musicOpen} onClose={()=>setMusicOpen(false)}/>
+    </div>
+  );
+}
+
+function WritePage({onSubmit,loading}) {
+  const [text,setText]=useState('');
+  const [emotion,setEmotion]=useState(null);
+  return (
+    <div className="write-wrap">
+      <div className="write-title">오늘 어떤 마음이에요?</div>
+      <div className="write-sub">여기서는 누구도 당신이 누구인지 몰라요</div>
+      <div className="anon-notice">
+        <span style={{fontSize:18,flexShrink:0}}>🔒</span>
+        <div className="anon-notice-text">완전한 익명으로 올라가요. 이름, 아이디, 아무것도 남지 않아요.</div>
+      </div>
+      <div className="write-emotion-row">
+        {EMOTIONS.map(e=><button key={e} className={`emotion-chip ${emotion===e?'selected':''}`} onClick={()=>setEmotion(e)}>{EMOTION_ICONS[e]} {e}</button>)}
+      </div>
+      <textarea className="write-textarea" placeholder="오늘 있었던 일, 지금 느끼는 감정... 뭐든 괜찮아요." maxLength={1000} value={text} onChange={e=>setText(e.target.value)}/>
+      <div className="write-footer">
+        <div className="char-count">{text.length} / 1000</div>
+        <button className="submit-btn" disabled={!text.trim()||!emotion||loading} onClick={()=>onSubmit(text,emotion)}>
+          {loading?'올리는 중...':'익명으로 올리기'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [page,setPage]=useState('feed');
+  const [posts,setPosts]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [submitting,setSubmitting]=useState(false);
+  const [detail,setDetail]=useState(null);
+  const [donateOpen,setDonateOpen]=useState(false);
+  const [inquiryOpen,setInquiryOpen]=useState(false);
+  const [reportTarget,setReportTarget]=useState(null);
+  const [toast,setToast]=useState({msg:'',visible:false});
+  const [popularTab,setPopularTab]=useState('24h');
+  const toastTimer=useRef(null);
+
+  const showToast=useCallback(msg=>{
+    setToast({msg,visible:true});
+    clearTimeout(toastTimer.current);
+    toastTimer.current=setTimeout(()=>setToast(t=>({...t,visible:false})),2500);
+  },[]);
+
+  const loadData=useCallback(async()=>{
+    setLoading(true);
+    setPosts(await fetchPosts());
+    setLoading(false);
+  },[]);
+
+  useEffect(()=>{ loadData(); },[]);
+
+  useEffect(()=>{
+    const g=document.getElementById('screenshot-guard');
+    const onKey=e=>{
+      if(e.key==='PrintScreen'||(e.metaKey&&e.shiftKey&&['3','4','5'].includes(e.key))||(e.ctrlKey&&e.key==='p')){
+        e.preventDefault(); g.classList.add('active'); setTimeout(()=>g.classList.remove('active'),2000);
+      }
+    };
+    const onVis=()=>{ if(document.visibilityState==='hidden') g.classList.add('active'); else setTimeout(()=>g.classList.remove('active'),800); };
+    document.addEventListener('keydown',onKey);
+    document.addEventListener('visibilitychange',onVis);
+    document.addEventListener('contextmenu',e=>e.preventDefault());
+    return()=>{ document.removeEventListener('keydown',onKey); document.removeEventListener('visibilitychange',onVis); };
+  },[]);
+
+  async function handleReact(postId,key,currentReaction) {
+    setPosts(prev=>prev.map(p=>{
+      if(p.id!==postId) return p;
+      const r={...p.reactions};
+      if(currentReaction) r[currentReaction]--;
+      if(currentReaction!==key) r[key]++;
+      return {...p,reactions:r,myReaction:currentReaction===key?null:key};
+    }));
+    if(detail?.id===postId) setDetail(d=>{
+      const r={...d.reactions};
+      if(currentReaction) r[currentReaction]--;
+      if(currentReaction!==key) r[key]++;
+      return {...d,reactions:r,myReaction:currentReaction===key?null:key};
+    });
+    if(currentReaction===key) {
+      await sb.from('reactions').delete().match({post_id:postId,session_id:SESSION_ID});
+      showToast('리액션을 취소했어요');
+    } else {
+      await sb.from('reactions').upsert({post_id:postId,session_id:SESSION_ID,reaction_type:key},{onConflict:'post_id,session_id'});
+      showToast(REACTIONS.find(r=>r.key===key).emoji+' 리액션을 남겼어요');
+    }
+  }
+
+  async function handleSubmit(text,emotion) {
+    setSubmitting(true);
+    const {data}=await sb.from('posts').insert({emotion,text}).select().single();
+    if(data){
+      setPosts(prev=>[{...data,reactions:{heart:0,cheer:0,same:0,support:0,metoo:0},myReaction:null,comments:[]},...prev]);
+      setPage('feed');
+      showToast('✨ 일기가 익명으로 올라갔어요');
+    }
+    setSubmitting(false);
+  }
+
+  async function handleAddComment(postId,text) {
+    const {data}=await sb.from('comments').insert({post_id:postId,text}).select().single();
+    if(data){
+      setPosts(prev=>prev.map(p=>p.id===postId?{...p,comments:[...p.comments,data]}:p));
+      if(detail?.id===postId) setDetail(d=>({...d,comments:[...d.comments,data]}));
+      showToast('💬 댓글을 남겼어요');
+    }
+  }
+
+  async function handleReport(postId,reason) {
+    await sb.from('reports').insert({post_id:postId,reason});
+    setPosts(prev=>prev.filter(p=>p.id!==postId));
+    if(detail?.id===postId) setDetail(null);
+    setReportTarget(null);
+    showToast('🚩 신고가 접수됐어요. 24시간 내 검토합니다.');
+  }
+
+  const popularPosts=[...posts].sort((a,b)=>{
+    if(popularTab==='24h'){const aN=new Date(a.created_at)>new Date(Date.now()-86400000);const bN=new Date(b.created_at)>new Date(Date.now()-86400000);if(aN!==bN) return bN-aN;}
+    else if(popularTab==='7d'){const aN=new Date(a.created_at)>new Date(Date.now()-604800000);const bN=new Date(b.created_at)>new Date(Date.now()-604800000);if(aN!==bN) return bN-aN;}
+    return totalR(b.reactions)-totalR(a.reactions);
+  });
+
+  return (
+    <>
+      <nav className="nav">
+        <div className="nav-logo">Dear <span>Nobody</span></div>
+        <div className="nav-tabs">
+          <button className={`nav-tab ${page==='feed'?'active':''}`} onClick={()=>setPage('feed')}>피드</button>
+          <button className={`nav-tab ${page==='popular'?'active':''}`} onClick={()=>setPage('popular')}>인기</button>
+        </div>
+        <button className="nav-write" onClick={()=>setPage('write')}>✏️ 쓰기</button>
+      </nav>
+      <div className="main">
+        {page==='feed'&&<>
+          <div className="feed-header"><div className="feed-title">모두의 일기 🌙</div><div className="feed-sub">익명의 누군가가 오늘의 감정을 기록했어요</div></div>
+          {loading?<div className="loading"><div className="spinner"/><span>불러오는 중...</span></div>
+          :posts.length===0?<div className="empty-state"><div style={{fontSize:40,marginBottom:12}}>📖</div><p>아직 일기가 없어요. 첫 번째로 써볼까요?</p></div>
+          :posts.map(p=><DiaryCard key={p.id} post={p} onClick={()=>setDetail(p)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)}/>)}
+        </>}
+        {page==='popular'&&<>
+          <div className="feed-header"><div className="feed-title">인기 일기 🔥</div><div className="feed-sub">가장 많은 공감을 받은 이야기들</div></div>
+          <div className="tab-bar">
+            {[['24h','오늘'],['7d','이번 주'],['all','전체']].map(([k,l])=>(
+              <button key={k} className={`tab-btn ${popularTab===k?'active':''}`} onClick={()=>setPopularTab(k)}>{l}</button>
+            ))}
+          </div>
+          {popularPosts.map((p,i)=><DiaryCard key={p.id} post={p} rank={i+1} onClick={()=>setDetail(p)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)}/>)}
+        </>}
+        {page==='write'&&<WritePage onSubmit={handleSubmit} loading={submitting}/>}
+      </div>
+      {detail&&<DetailModal post={detail} onClose={()=>setDetail(null)} onReact={handleReact} onDonate={()=>setDonateOpen(true)} onReport={id=>setReportTarget(id)} onAddComment={handleAddComment}/>}
+      {donateOpen&&<DonateModal onClose={()=>setDonateOpen(false)}/>}
+      {reportTarget&&<ReportModal onClose={()=>setReportTarget(null)} onSubmit={reason=>handleReport(reportTarget,reason)}/>}
+      {inquiryOpen&&<InquiryModal onClose={()=>setInquiryOpen(false)}/>}
+      <Toast msg={toast.msg} visible={toast.visible}/>
+      <div className="footer-bar" style={{textAlign:'center',paddingTop:8}}>
+        <button className="inquiry-trigger" onClick={()=>setInquiryOpen(true)}>💡 기능 추가 문의하기</button>
+      </div>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
