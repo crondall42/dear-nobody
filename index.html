@@ -564,7 +564,6 @@ function DetailModal({post,onClose,onReact,onReport,onEdit,onDelete,onAddComment
           ))}
         </div>
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
-          <button className="action-btn" onClick={()=>setMusicOpen(true)}>🎵 음악 추천받기</button>
           <button className="action-btn" onClick={()=>setShowTranslate(v=>!v)}>🌐 {showTranslate?'원문':'Translate'}</button>
           <button className="action-btn" onClick={onShare}>🔗 공유</button>
           {canAct?(
